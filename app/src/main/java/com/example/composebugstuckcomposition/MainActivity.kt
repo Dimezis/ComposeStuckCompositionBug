@@ -26,28 +26,33 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val progress = remember { mutableStateOf(false) }
-            Content(progress.value,
-                triggerBug = {
-                    println("Clicked triggerBug")
-                    addPreDrawListener()
-                },
-                toggleProgress = {
-                    println("Clicked toggleProgress")
-                    progress.value = !progress.value
-                })
+            Content(progress.value, triggerBug = {
+                println("Clicked triggerBug")
+                addPreDrawListener()
+            }, toggleProgress = {
+                println("Clicked toggleProgress")
+                progress.value = !progress.value
+            })
         }
     }
 
     // Breaks recomposition or something fundamental in Compose runtime.
     // Buttons stop responding to clicks and animation is stuck.
+    // OnPreDrawListener is getting repeatedly called as if the progress bar is still trying to redraw itself
     // The only notable thing in logs is:
     // The RippleDrawable.STYLE_PATTERNED animation is not supported for a non-hardware accelerated Canvas. Skipping animation.
     // But that's just a result of attempting to render ripple on a software canvas below.
     private fun addPreDrawListener() {
-        val c = Canvas(Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888))
+        val softwareCanvas = Canvas(Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888))
         val root = window.decorView
+//        val renderNode = RenderNode("snapshot")
         root.viewTreeObserver.addOnPreDrawListener {
-            root.draw(c)
+            println("onPreDraw")
+            root.draw(softwareCanvas)
+            // Uncomment to try the hardware canvas option
+//            val hardwareCanvas = renderNode.beginRecording(64, 64)
+//            root.draw(hardwareCanvas)
+//            renderNode.endRecording()
             true
         }
     }
