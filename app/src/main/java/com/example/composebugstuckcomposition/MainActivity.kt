@@ -67,14 +67,14 @@ fun Content(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             ) {
-                if (progress) {
-                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
-                }
                 Button(onClick = { triggerBug() }) {
                     Text(text = "Trigger bug")
                 }
                 Button(onClick = { toggleProgress() }) {
                     Text(text = "Toggle progress")
+                }
+                if (progress) {
+                    CircularProgressIndicator(modifier = Modifier.size(100.dp))
                 }
             }
         }
